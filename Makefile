@@ -10,9 +10,8 @@ ONEAPI_ROOT ?= /opt/intel/oneapi
 
 export TERM=xterm
 
-
-CXX_COMPILER=dpcpp
-CXX_FLAGS="  -fsycl  -fsycl-unnamed-lambda "
+CXX_COMPILER=clang++
+CXX_FLAGS="  -fsycl  -fsycl-targets=nvptx64-nvidia-cuda "
 
 #----------------------------------------------------------------------------------------------------------------------
 # Targets
@@ -33,7 +32,6 @@ build_host:
 build:  
 	@$(call msg,Building vect_add Application   ...)
 	@mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && \
-		source ${ONEAPI_ROOT}/setvars.sh --force > /dev/null 2>&1 && \
 		bash -c  ' \
 			  CXX=${CXX_COMPILER} \
 			  CXXFLAGS=${CXX_FLAGS} \
@@ -42,8 +40,7 @@ build:
 
 run: build
 	@$(call msg,Running the vect_add Application ...)
-	@source ${ONEAPI_ROOT}/setvars.sh --force > /dev/null 2>&1 && \
-		${BUILD_DIR}/matrix_ops
+	@${BUILD_DIR}/matrix_ops
 		
 
 clean:

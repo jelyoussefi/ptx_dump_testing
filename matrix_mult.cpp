@@ -1,6 +1,5 @@
 #include "matrix_ops.hpp"
 
-namespace sycl = cl::sycl;
 
 template <typename T>
 void matrix_mult( sycl::queue q, T* inA, T* inB, T* outC, 
