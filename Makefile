@@ -11,7 +11,7 @@ ONEAPI_ROOT ?= /opt/intel/oneapi
 export TERM=xterm
 
 CXX_COMPILER=clang++
-CXX_FLAGS="  -fsycl  -fsycl-targets=nvptx64-nvidia-cuda "
+CXX_FLAGS="  -fsycl  -fsycl-targets=nvptx64-nvidia-cuda -Wno-deprecated-declarations  "
 
 #----------------------------------------------------------------------------------------------------------------------
 # Targets
@@ -22,15 +22,15 @@ default: run
 
 build_device:
 	@$(call msg,Building for device only   ...)
-	@${CXX_COMPILER} -fsycl-device-only -fno-sycl-use-bitcode  -stdlib=libstdc++   main.cpp matrix_mult.cpp
+	@${CXX_COMPILER} -fsycl-device-only -fno-sycl-use-bitcode  -stdlib=libstdc++   ./nvidia_mat_mul.cpp
 	
 
 build_host:
 	@$(call msg,Building for host only   ...)
-	@${CXX_COMPILER} --cuda-compile-host-device -fno-sycl-use-bitcode  -stdlib=libstdc++   main.cpp matrix_mult.cpp	
+	@${CXX_COMPILER} --cuda-compile-host-device -fno-sycl-use-bitcode  -stdlib=libstdc++   ./nvidia_mat_mul.cpp	
 	
 build:  
-	@$(call msg,Building vect_add Application   ...)
+	@$(call msg,Building multiplication Application   ...)
 	@mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && \
 		bash -c  ' \
 			  CXX=${CXX_COMPILER} \
@@ -39,7 +39,7 @@ build:
 			  make '
 
 run: build
-	@$(call msg,Running the vect_add Application ...)
+	@$(call msg,Running the mat multiplication Application ...)
 	@${BUILD_DIR}/matrix_ops
 		
 

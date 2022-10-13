@@ -1,14 +1,7 @@
-#include <vector>
-#include <cstdlib>
-#include <algorithm>
-#include <sys/time.h>
-#include <iostream>
-#include <limits>
-#include <cmath>
+#include <stdio.h>
+#include <CL/sycl.hpp>
 
-#include "matrix_ops.hpp"
 
-using namespace std;
 using namespace sycl;
 
 const size_t M = 1024;
@@ -45,6 +38,29 @@ bool check_result(T* A, T* B, T* C)
     return true;
 }
 
+template <typename T>
+void matrix_mult( sycl::queue q, T* inA, T* inB, T* outC, 
+                  const size_t M, const size_t N, const size_t K) 
+{    
+    q.submit([&] (sycl::handler& cgh) {
+
+        // Kernel submission
+        cgh.parallel_for<class MatrixMul>(sycl::range<1>(M*N), [=] (sycl::id<1> idx) {
+            size_t x = idx % N;
+            size_t y = idx / N;
+
+            T sum = 0;
+            for (auto k=0; k<K; k++) {
+                sum += inA[y*K+k] * inB[k*N+x];
+            }
+            outC[y*N+x] = sum;
+        });
+        
+    }).wait();
+    
+}
+
+
 //-------------------------------------------------------------------------------------------
 // Public functions
 //-------------------------------------------------------------------------------------------
@@ -54,11 +70,9 @@ int main() {
    
     auto q = sycl::queue(sycl::gpu_selector());
 
-    std::cout << "\n---------------------------------------------------------------------------------" << std::endl;
-    std::cout << "    Device\t: " <<q.get_device().get_info<sycl::info::device::name>()<< std::endl;
-    std::cout << "    CU    \t: " <<q.get_device().get_info<sycl::info::device::max_compute_units>()<< std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
 
+    printf("Device\t: %s\n", q.get_device().get_info<sycl::info::device::name>().c_str());
+   
     auto A = sycl::malloc_shared<float>(M*K, q);
     auto B = sycl::malloc_shared<float>(K*N, q);
     auto C = sycl::malloc_shared<float>(M*N, q);
@@ -75,11 +89,7 @@ int main() {
 
     bool status = check_result<float>(A, B, C);
 
-    std::cout<<"\tstatus:\t\t" << (status ? "OK" : "KO")<<std::endl; 
-    
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
-
-    
+    printf("\tstatus:\t%s\n", (status ? "OK" : "KO"));
 
   return 0;
 }
