@@ -44,4 +44,4 @@ run: build
 		
 
 clean:
-	@rm -rf ${BUILD_DIR} *.spv
+	@rm -rf ${BUILD_DIR} *.h *.o *.s *.out *.bc *.fatbin
