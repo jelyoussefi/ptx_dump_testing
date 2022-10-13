@@ -22,7 +22,7 @@ default: run
 
 build_device:
 	@$(call msg,Building for device only   ...)
-	@${CXX_COMPILER} -fsycl-device-only -fno-sycl-use-bitcode  -stdlib=libstdc++   ./nvidia_mat_mul.cpp
+	@${CXX_COMPILER} -fsycl-device-only    ./nvidia_mat_mul.cpp
 	
 
 build_host:
@@ -44,4 +44,4 @@ run: build
 		
 
 clean:
-	@rm -rf ${BUILD_DIR} *.h *.o *.s *.out *.bc *.fatbin
+	@rm -rf ${BUILD_DIR} *.h *.o *.s *.out *.bc *.fatbin *.spv
